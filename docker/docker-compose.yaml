@@ -1,0 +1,42 @@
+version: "3.11"
+services:
+  forecast_worker:
+    restart: always
+    build:
+      context: ./..
+      dockerfile: ./docker/Dockerfile
+    command: sh -c "python /code/worker.py"
+    logging:
+      options:
+        max-size: "3m"
+        max-file: "1"
+    networks:
+      - default
+      - service-common_default
+  forecast_tele_bot:
+    restart: always
+    build:
+      context: ./..
+      dockerfile: ./docker/Dockerfile
+    command: sh -c "python /code/main.py"
+    logging:
+      options:
+        max-size: "3m"
+        max-file: "1"
+    networks:
+      - default
+      - service-common_default
+  forecast_sender:
+    restart: on-failure
+    build:
+      context: ./..
+      dockerfile: ./docker/Dockerfile
+    command: sh -c "python /code/sender.py"
+    networks:
+      - default
+      - service-common_default
+networks:
+  service-common_default:
+    external: true
+  default:
+    driver: bridge
